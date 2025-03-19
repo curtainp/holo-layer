@@ -299,11 +299,10 @@ Default is disable.")
                               (not (string-match-p "QT_SCREEN_SCALE_FACTOR" var))))
                        process-environment)))
     (when holo-layer-enable-debug
-      (add-to-list 'environments "QT_DEBUG_PLUGINS=1" t))
+      (cl-pushnew "QT_DEBUG_PLUGINS=1" 'environments))
 
     (unless (eq system-type 'darwin)
-      (add-to-list 'environments
-                   (cond
+      (cl-pushnew (cond
                     ((holo-layer-emacs-running-in-wayland-native)
                      ;; Wayland native need to set QT_AUTO_SCREEN_SCALE_FACTOR=1
                      ;; otherwise Qt window only have half of screen.
@@ -312,21 +311,21 @@ Default is disable.")
                      ;; XWayland need to set QT_AUTO_SCREEN_SCALE_FACTOR=0
                      ;; otherwise Qt which explicitly force high DPI enabling get scaled TWICE.
                      "QT_AUTO_SCREEN_SCALE_FACTOR=0"))
-                   t)
+                   'environments)
 
-      (add-to-list 'environments "QT_FONT_DPI=96" t)
+      (cl-pushnew "QT_FONT_DPI=96" 'environments)
 
       ;; Make sure holo layer application scale support 4k screen.
-      (add-to-list 'environments "QT_SCALE_FACTOR=1" t)
+      (cl-pushnew "QT_SCALE_FACTOR=1" 'environments)
 
       ;; Fix CORS problem.
-      (add-to-list 'environments "QTWEBENGINE_CHROMIUM_FLAGS=--disable-web-security" t)
+      (cl-pushnew "QTWEBENGINE_CHROMIUM_FLAGS=--disable-web-security" 'environments)
 
       ;; Use XCB for input event transfer.
       ;; Only enable this option on Linux platform.
       (when (and (eq system-type 'gnu/linux)
                  (not (holo-layer-emacs-running-in-wayland-native)))
-        (add-to-list 'environments "QT_QPA_PLATFORM=xcb" t)))
+        (cl-pushnew "QT_QPA_PLATFORM=xcb" 'environments)))
     environments))
 
 (defun holo-layer-start-process ()
